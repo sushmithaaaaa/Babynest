@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Quicksand', 'sans-serif';
+  --font-fredoka: 'Fredoka', 'sans-serif';
+  
+  --color-babyPink-light: #FFF5F7;
+  --color-babyPink: #FF94B4;
+  --color-babyPink-dark: #E84E7B;
+  
+  --color-babyBlue-light: #F0F9FF;
+  --color-babyBlue: #7DD3FC;
+  --color-babyBlue-dark: #0284C7;
+  
+  --color-babyMint-light: #F0FDF4;
+  --color-babyMint: #86EFAC;
+  --color-babyMint-dark: #16A34A;
+  
+  --color-babyPeach-light: #FFF7ED;
+  --color-babyPeach: #FDBA74;
+  --color-babyPeach-dark: #EA580C;
+  
+  --color-babyPurple-light: #FAF5FF;
+  --color-babyPurple: #D8B4FE;
+  --color-babyPurple-dark: #9333EA;
+  
+  --color-babyYellow-light: #FEFCE8;
+  --color-babyYellow: #FDE047;
+  --color-babyYellow-dark: #CA8A04;
+
+  --animate-bounce-slow: bounce 3s infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+body {
+  @apply font-sans bg-amber-50/20 text-slate-700 antialiased;
+}
+
+body::selection {
+  @apply bg-babyPink/20 text-babyPink-dark;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-fredoka font-medium text-slate-800;
+}
+
+/* Custom Webkit Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-babyPink/60 rounded-full border-2 border-slate-50 hover:bg-babyPink-dark/80 transition-colors;
+}
+
+/* Glassmorphism Classes */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Soft Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 4s ease-in-out infinite;
+  animation-delay: 2s;
+}
+

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Heart, Send, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -68,10 +69,12 @@ export default function Footer() {
               Explore
             </h4>
             <ul className="space-y-2.5 text-xs font-medium">
-              <li><a href="#hero" className="hover:text-babyPink transition-colors">Home</a></li>
-              <li><a href="#categories" className="hover:text-babyPink transition-colors">Categories</a></li>
-              <li><a href="#products" className="hover:text-babyPink transition-colors">Products</a></li>
-              <li><a href="#reviews" className="hover:text-babyPink transition-colors">Reviews</a></li>
+              <li><Link to="/Categories" className="hover:text-babyPink transition-colors">Categories</Link></li>
+              <li><Link to="/products" className="hover:text-babyPink transition-colors">Products</Link></li>
+              <li><Link to="/Toys" className="hover:text-babyPink transition-colors">Toys</Link></li>
+              <li><Link to="/shop by age" className="hover:text-babyPink transition-colors">Shop By Age</Link></li>
+              <li><Link to="/Featured products" className="hover:text-babyPink transition-colors">Featured</Link></li>
+              <li><Link to="/reviews" className="hover:text-babyPink transition-colors">Reviews</Link></li>
             </ul>
           </div>
 

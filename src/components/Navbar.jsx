@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingBag, Heart, Search, Menu, X, Plus, Minus, Trash2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -13,6 +14,9 @@ export default function Navbar({
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -43,6 +47,21 @@ export default function Navbar({
     setIsCartOpen(false);
   };
 
+  const handleWishlistToggle = () => {
+    const nextVal = !showWishlistOnly;
+    setShowWishlistOnly(nextVal);
+    if (nextVal && location.pathname !== '/products') {
+      navigate('/products');
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate('/products', { state: { search: searchQuery } });
+      setSearchQuery('');
+    }
+  };
+
   return (
     <>
       {/* Sticky Header */}
@@ -50,40 +69,43 @@ export default function Navbar({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => setShowWishlistOnly(false)}>
+            <Link to="/products" onClick={() => setShowWishlistOnly(false)} className="flex-shrink-0 flex items-center cursor-pointer">
               <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-babyPink to-babyPurple flex items-center justify-center text-white font-fredoka text-2xl font-bold shadow-md shadow-babyPink/30">
                 👶
               </div>
               <span className="ml-3 font-fredoka text-2xl font-bold bg-gradient-to-r from-babyPink-dark via-babyPurple-dark to-babyBlue-dark bg-clip-text text-transparent">
                 BabyNest
               </span>
-            </div>
+            </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8 font-medium">
-              <a href="#hero" onClick={() => setShowWishlistOnly(false)} className="text-slate-600 hover:text-babyPink-dark transition-colors">Home</a>
-              <a href="#categories" onClick={() => setShowWishlistOnly(false)} className="text-slate-600 hover:text-babyPink-dark transition-colors">Categories</a>
-              <a href="#products" onClick={() => setShowWishlistOnly(false)} className="text-slate-600 hover:text-babyPink-dark transition-colors">Products</a>
-              <a href="#reviews" onClick={() => setShowWishlistOnly(false)} className="text-slate-600 hover:text-babyPink-dark transition-colors">Reviews</a>
+            <nav className="hidden lg:flex space-x-6 xl:space-x-8 font-medium text-sm">
+              <Link to="/Categories" onClick={() => setShowWishlistOnly(false)} className={`transition-colors ${location.pathname.startsWith('/Categories') || location.pathname.startsWith('/categories') ? 'text-babyPink-dark font-bold' : 'text-slate-600 hover:text-babyPink-dark'}`}>Categories</Link>
+              <Link to="/products" onClick={() => setShowWishlistOnly(false)} className={`transition-colors ${location.pathname === '/products' && !showWishlistOnly ? 'text-babyPink-dark font-bold' : 'text-slate-600 hover:text-babyPink-dark'}`}>Products</Link>
+              <Link to="/Toys" onClick={() => setShowWishlistOnly(false)} className={`transition-colors ${location.pathname.toLowerCase() === '/toys' ? 'text-babyPink-dark font-bold' : 'text-slate-600 hover:text-babyPink-dark'}`}>Toys</Link>
+              <Link to="/shop by age" onClick={() => setShowWishlistOnly(false)} className={`transition-colors ${location.pathname.toLowerCase().includes('age') ? 'text-babyPink-dark font-bold' : 'text-slate-600 hover:text-babyPink-dark'}`}>Shop By Age</Link>
+              <Link to="/Featured products" onClick={() => setShowWishlistOnly(false)} className={`transition-colors ${location.pathname.toLowerCase().includes('featured') ? 'text-babyPink-dark font-bold' : 'text-slate-600 hover:text-babyPink-dark'}`}>Featured</Link>
+              <Link to="/reviews" onClick={() => setShowWishlistOnly(false)} className={`transition-colors ${location.pathname === '/reviews' ? 'text-babyPink-dark font-bold' : 'text-slate-600 hover:text-babyPink-dark'}`}>Reviews</Link>
             </nav>
 
             {/* Actions */}
             <div className="flex items-center space-x-4">
               {/* Search input */}
-              <div className="hidden lg:flex items-center bg-slate-100 border border-slate-200 rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-babyPink focus-within:bg-white transition-all w-60">
+              <div className="hidden xl:flex items-center bg-slate-100 border border-slate-200 rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-babyPink focus-within:bg-white transition-all w-60">
                 <Search className="w-4 h-4 text-slate-400 mr-2" />
                 <input 
                   type="text" 
-                  placeholder="Search baby essentials..." 
+                  placeholder="Press Enter to search..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none text-sm w-full text-slate-600 placeholder-slate-400"
+                  onKeyDown={handleSearchSubmit}
+                  className="bg-transparent border-none outline-none text-xs w-full text-slate-600 placeholder-slate-400"
                 />
               </div>
 
               {/* Wishlist Button */}
               <button 
-                onClick={() => setShowWishlistOnly(!showWishlistOnly)} 
+                onClick={handleWishlistToggle} 
                 className={`relative p-2.5 rounded-full transition-all duration-300 ${
                   showWishlistOnly 
                     ? 'bg-babyPink text-white shadow-md shadow-babyPink/30' 
@@ -116,7 +138,7 @@ export default function Navbar({
               {/* Mobile Menu Button */}
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-                className="md:hidden p-2.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                className="lg:hidden p-2.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -126,35 +148,49 @@ export default function Navbar({
 
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-md px-4 pt-2 pb-6 space-y-3">
-            <a 
-              href="#hero" 
+          <div className="lg:hidden border-t border-slate-100 bg-white/95 backdrop-blur-md px-4 pt-2 pb-6 space-y-2 flex flex-col">
+            <Link 
+              to="/Categories" 
               onClick={() => { setIsMobileMenuOpen(false); setShowWishlistOnly(false); }} 
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
-            >
-              Home
-            </a>
-            <a 
-              href="#categories" 
-              onClick={() => { setIsMobileMenuOpen(false); setShowWishlistOnly(false); }} 
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
+              className="block px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
             >
               Categories
-            </a>
-            <a 
-              href="#products" 
+            </Link>
+            <Link 
+              to="/products" 
               onClick={() => { setIsMobileMenuOpen(false); setShowWishlistOnly(false); }} 
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
+              className="block px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
             >
               Products
-            </a>
-            <a 
-              href="#reviews" 
+            </Link>
+            <Link 
+              to="/Toys" 
               onClick={() => { setIsMobileMenuOpen(false); setShowWishlistOnly(false); }} 
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
+              className="block px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
+            >
+              Toys
+            </Link>
+            <Link 
+              to="/shop by age" 
+              onClick={() => { setIsMobileMenuOpen(false); setShowWishlistOnly(false); }} 
+              className="block px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
+            >
+              Shop By Age
+            </Link>
+            <Link 
+              to="/Featured products" 
+              onClick={() => { setIsMobileMenuOpen(false); setShowWishlistOnly(false); }} 
+              className="block px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
+            >
+              Featured Products
+            </Link>
+            <Link 
+              to="/reviews" 
+              onClick={() => { setIsMobileMenuOpen(false); setShowWishlistOnly(false); }} 
+              className="block px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-babyPink-dark"
             >
               Reviews
-            </a>
+            </Link>
             {/* Search for mobile */}
             <div className="flex items-center bg-slate-100 border border-slate-200 rounded-full px-3 py-2 w-full mt-4">
               <Search className="w-4 h-4 text-slate-400 mr-2" />

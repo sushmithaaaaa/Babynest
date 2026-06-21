@@ -1,74 +1,150 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Categories from './components/Categories';
-import OfferBanner from './components/OfferBanner';
-import Products from './components/Products';
-import Reviews from './components/Reviews';
-import Brands from './components/Brands';
 import Footer from './components/Footer';
+import CategoriesPage from './pages/CategoriesPage';
+import ProductsPage from './pages/ProductsPage';
+import ReviewsPage from './pages/ReviewsPage';
+import ShopByAgePage from './pages/ShopByAgePage';
+import FeaturedProductsPage from './pages/FeaturedProductsPage';
+import ToysPage from './pages/ToysPage';
+
+// Scroll to top on route change for premium UX
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 export default function App() {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [wishlist, setWishlist] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('all');
   const [showWishlistOnly, setShowWishlistOnly] = useState(false);
 
-  // Helper function to handle clicks that trigger a shop scroll + category set
-  const handleShopRedirect = (category) => {
-    setActiveCategory(category);
-    setShowWishlistOnly(false);
-    const el = document.getElementById('products');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <div className="min-h-screen bg-amber-50/10 flex flex-col justify-between selection:bg-pink-100 selection:text-pink-600">
-      <div>
-        {/* Navbar */}
-        <Navbar 
-          cartItems={cartItems} 
-          setCartItems={setCartItems}
-          isCartOpen={isCartOpen}
-          setIsCartOpen={setIsCartOpen}
-          wishlist={wishlist}
-          showWishlistOnly={showWishlistOnly}
-          setShowWishlistOnly={setShowWishlistOnly}
-        />
+    <BrowserRouter>
+      <ScrollToTop />
+      <div className="min-h-screen bg-amber-50/10 flex flex-col justify-between selection:bg-pink-100 selection:text-pink-600">
+        <div>
+          {/* Navbar */}
+          <Navbar 
+            cartItems={cartItems} 
+            setCartItems={setCartItems}
+            isCartOpen={isCartOpen}
+            setIsCartOpen={setIsCartOpen}
+            wishlist={wishlist}
+            showWishlistOnly={showWishlistOnly}
+            setShowWishlistOnly={setShowWishlistOnly}
+          />
 
-        {/* Hero Section */}
-        <Hero onShopClick={handleShopRedirect} />
+          <main>
+            <Routes>
+              {/* Home Route Redirects to Products */}
+              <Route path="/" element={<Navigate to="/products" replace />} />
 
-        {/* Categories Section */}
-        <Categories 
-          activeCategory={activeCategory} 
-          setActiveCategory={setActiveCategory} 
-        />
+              {/* Categories Routes */}
+              <Route path="/Categories" element={
+                <CategoriesPage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
+              <Route path="/categories" element={
+                <CategoriesPage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
 
-        {/* Products Section */}
-        <Products 
-          cartItems={cartItems}
-          setCartItems={setCartItems}
-          wishlist={wishlist}
-          setWishlist={setWishlist}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-          showWishlistOnly={showWishlistOnly}
-        />
+              {/* Products Route */}
+              <Route path="/products" element={
+                <ProductsPage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
 
-        {/* Offer Banner */}
-        <OfferBanner onShopClick={handleShopRedirect} />
+              {/* Reviews Route */}
+              <Route path="/reviews" element={<ReviewsPage />} />
 
-        {/* Testimonials/Reviews Section */}
-        <Reviews />
+              {/* Shop by Age Routes */}
+              <Route path="/shop by age" element={
+                <ShopByAgePage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
+              <Route path="/shop-by-age" element={
+                <ShopByAgePage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
 
-        {/* Brands Section */}
-        <Brands />
+              {/* Featured Products Routes */}
+              <Route path="/Featured products" element={
+                <FeaturedProductsPage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
+              <Route path="/featured-products" element={
+                <FeaturedProductsPage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
+              <Route path="/featured" element={
+                <FeaturedProductsPage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
+
+              {/* Toys Routes */}
+              <Route path="/Toys" element={
+                <ToysPage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
+              <Route path="/toys" element={
+                <ToysPage 
+                  cartItems={cartItems} 
+                  setCartItems={setCartItems} 
+                  wishlist={wishlist} 
+                  setWishlist={setWishlist} 
+                />
+              } />
+            </Routes>
+          </main>
+        </div>
+
+        {/* Footer Section */}
+        <Footer />
       </div>
-
-      {/* Footer Section */}
-      <Footer />
-    </div>
+    </BrowserRouter>
   );
 }
+

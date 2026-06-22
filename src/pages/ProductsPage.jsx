@@ -373,18 +373,26 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                         </button>
 
                         {/* Image wrapper */}
-                        <div className="relative w-full aspect-square rounded-2xl bg-slate-50 flex items-center justify-center p-6 overflow-hidden mb-5">
-                          {/* Big central emoji */}
-                          <span className="text-6.5xl z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                            {product.emoji}
-                          </span>
+                        <div className="relative w-full aspect-square rounded-2xl bg-slate-50 flex items-center justify-center overflow-hidden mb-5 border border-slate-100/50">
+                          {product.image ? (
+                            <img 
+                              src={product.image} 
+                              alt={product.name} 
+                              className="w-full h-full object-cover z-10 transform group-hover:scale-110 transition-transform duration-505"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <span className="text-6.5xl z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                              {product.emoji}
+                            </span>
+                          )}
                           {/* Subtle circle layer */}
                           <div className={`absolute w-32 h-32 rounded-full filter blur-xl opacity-30 -z-0 ${product.bgColor.split(' ')[0]}`}></div>
                           
                           {/* Visual Hover effect details overlay */}
-                          <div className="absolute inset-0 bg-slate-900/5 backdrop-blur-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-20">
                             <span className="p-3 bg-white text-slate-800 rounded-full shadow-lg hover:scale-105 transition-transform flex items-center gap-1.5 text-xs font-bold font-fredoka">
-                              <Eye className="w-4 h-4" /> Quick View
+                              <Eye className="w-4 h-4 text-babyPink-dark" /> Quick View
                             </span>
                           </div>
                         </div>
@@ -455,10 +463,18 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
               </button>
 
               {/* Product Visual */}
-              <div className="md:w-1/2 bg-slate-50 flex items-center justify-center p-8 relative min-h-[300px]">
-                <span className="text-8xl relative z-10">{selectedProduct.emoji}</span>
+              <div className="md:w-1/2 bg-slate-50 flex items-center justify-center relative min-h-[300px] overflow-hidden border-r border-slate-100">
+                {selectedProduct.image ? (
+                  <img 
+                    src={selectedProduct.image} 
+                    alt={selectedProduct.name} 
+                    className="w-full h-full object-cover absolute inset-0 z-10"
+                  />
+                ) : (
+                  <span className="text-8xl relative z-10">{selectedProduct.emoji}</span>
+                )}
                 <div className={`absolute w-48 h-48 rounded-full filter blur-2xl opacity-20 ${selectedProduct.bgColor.split(' ')[0]}`}></div>
-                <div className="absolute bottom-6 left-6 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                <div className="absolute bottom-6 left-6 text-[10px] font-bold tracking-wider text-slate-400 bg-white/85 backdrop-blur-xs px-2.5 py-1 rounded-full z-20 uppercase shadow-xs">
                   ID: #{selectedProduct.id}
                 </div>
               </div>

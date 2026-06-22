@@ -244,8 +244,16 @@ export default function Navbar({
                   cartItems.map((item) => (
                     <div key={item.id} className="flex items-center border-b border-slate-100 pb-4">
                       {/* Product image */}
-                      <div className="w-20 h-20 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center p-2 mr-4 flex-shrink-0 relative overflow-hidden">
-                        <span className="text-3xl relative z-10">{item.emoji || '🍼'}</span>
+                      <div className="w-20 h-20 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center overflow-hidden mr-4 flex-shrink-0 relative">
+                        {item.image ? (
+                          <img 
+                            src={item.image} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover relative z-10"
+                          />
+                        ) : (
+                          <span className="text-3xl relative z-10">{item.emoji || '🍼'}</span>
+                        )}
                         <div className={`absolute inset-0 opacity-10 ${item.bgColor || 'bg-babyPink'}`}></div>
                       </div>
                       

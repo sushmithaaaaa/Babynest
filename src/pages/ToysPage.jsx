@@ -116,9 +116,18 @@ export default function ToysPage({ cartItems, setCartItems, wishlist, setWishlis
                   </button>
 
                   <div>
-                    {/* Emoji Image placeholder */}
+                    {/* Product Image */}
                     <div className="aspect-square bg-slate-50 border border-slate-100/50 rounded-2xl flex items-center justify-center relative overflow-hidden mb-5">
-                      <span className="text-6xl relative z-10 group-hover:scale-110 transition-transform duration-300">{product.emoji}</span>
+                      {product.image ? (
+                        <img 
+                          src={product.image} 
+                          alt={product.name} 
+                          className="w-full h-full object-cover relative z-10 transform group-hover:scale-110 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="text-6xl relative z-10 group-hover:scale-110 transition-transform duration-300">{product.emoji}</span>
+                      )}
                       <div className={`absolute inset-0 opacity-10 ${product.bgColor || 'bg-babyPink'}`}></div>
                     </div>
 

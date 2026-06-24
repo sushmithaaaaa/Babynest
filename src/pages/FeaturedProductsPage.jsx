@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mockProducts } from '../data/products';
 import { Heart, Star, ShoppingCart, Sparkles, Flame, Percent } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function FeaturedProductsPage({ cartItems, setCartItems, wishlist, setWishlist }) {
+export default function FeaturedProductsPage({ products, cartItems, setCartItems, wishlist, setWishlist }) {
   const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 45, seconds: 30 });
 
@@ -24,8 +23,8 @@ export default function FeaturedProductsPage({ cartItems, setCartItems, wishlist
 
   const formatNum = (n) => String(n).padStart(2, '0');
 
-  // Filter for hot products and sale products
-  const featuredItems = mockProducts.filter(p => p.badge === 'Hot' || p.badge === 'Sale' || p.oldPrice);
+  // Filter for hot products and sale products from shared products state
+  const featuredItems = products.filter(p => p.badge === 'Hot' || p.badge === 'Sale' || p.oldPrice);
 
   const toggleWishlist = (id, e) => {
     e.stopPropagation();
@@ -54,12 +53,12 @@ export default function FeaturedProductsPage({ cartItems, setCartItems, wishlist
   };
 
   return (
-    <div className="py-12 bg-gradient-to-b from-orange-50/10 via-white to-pink-50/10 min-h-screen">
+    <div className="py-12 bg-gradient-to-b from-orange-50/10 via-white to-pink-50/10 min-h-screen selection:bg-pink-100 selection:text-pink-650">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Banner Title */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-xs font-bold uppercase tracking-widest text-babyPeach-dark bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 font-fredoka">
+          <span className="text-xs font-bold uppercase tracking-widest text-babyPeach-dark bg-orange-50 px-3 py-1.5 rounded-full border border-orange-105 font-fredoka">
             Special Spotlight
           </span>
           <h1 className="text-4xl sm:text-5xl font-extrabold font-fredoka text-slate-800 mt-4 leading-tight">
@@ -95,7 +94,7 @@ export default function FeaturedProductsPage({ cartItems, setCartItems, wishlist
             </div>
           </div>
 
-          <div className="bg-white/15 backdrop-blur-md border border-white/20 p-6 rounded-3xl w-full md:w-auto shrink-0 md:max-w-xs text-white">
+          <div className="bg-white/15 backdrop-blur-md border border-white/20 p-6 rounded-3xl w-full md:w-auto shrink-0 md:max-w-xs text-white text-left">
             <h4 className="text-xs font-bold font-fredoka text-white uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" /> Certified Safe Quality:
             </h4>
@@ -105,7 +104,7 @@ export default function FeaturedProductsPage({ cartItems, setCartItems, wishlist
           </div>
         </div>
 
-        {/* Featured Items Grid */}
+        {/* Featured Items Grid Title */}
         <div className="border-b border-slate-100 pb-4 mb-10 text-left">
           <h3 className="text-xl font-bold font-fredoka text-slate-800 flex items-center gap-2">
             <Flame className="w-5 h-5 text-rose-500 fill-current" /> Trending Now
@@ -133,9 +132,7 @@ export default function FeaturedProductsPage({ cartItems, setCartItems, wishlist
                 >
                   {/* Badge */}
                   {product.badge && (
-                    <span className={`absolute top-4 left-4 z-10 px-2.5 py-1 text-[10px] font-bold text-white rounded-full shadow-sm font-fredoka uppercase tracking-wider ${
-                      product.badge === 'Sale' ? 'bg-rose-450 bg-rose-500' : 'bg-amber-500'
-                    }`}>
+                    <span className={`absolute top-4 left-4 z-10 px-2.5 py-1 text-[10px] font-bold text-white rounded-full shadow-sm font-fredoka uppercase tracking-wider bg-rose-500`}>
                       {product.badge}
                     </span>
                   )}
@@ -159,6 +156,7 @@ export default function FeaturedProductsPage({ cartItems, setCartItems, wishlist
                         <img 
                           src={product.image} 
                           alt={product.name} 
+                          onError={(e) => { e.target.onError = null; e.target.src = "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?w=600&auto=format&fit=crop&q=80"; }}
                           className="w-full h-full object-cover relative z-10 transform group-hover:scale-110 transition-transform duration-500"
                           loading="lazy"
                         />
@@ -174,19 +172,19 @@ export default function FeaturedProductsPage({ cartItems, setCartItems, wishlist
                         <Star className="w-3.5 h-3.5 fill-current" />
                       </div>
                       <span className="text-xs font-bold text-slate-700">{product.rating}</span>
-                      <span className="text-[10px] text-slate-400 font-medium">({product.reviews} reviews)</span>
+                      <span className="text-[10px] text-slate-405 font-medium">({product.reviews} reviews)</span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-slate-800 font-fredoka truncate mb-1">
+                    <h3 className="text-sm font-bold text-slate-805 font-fredoka truncate mb-1 text-left">
                       {product.name}
                     </h3>
-                    <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed font-medium">
+                    <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed text-left">
                       {product.description}
                     </p>
                   </div>
 
                   {/* Action row */}
-                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50">
+                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-55">
                     <div>
                       {product.oldPrice && (
                         <span className="text-xs text-slate-400 line-through mr-1.5 font-medium">
@@ -198,9 +196,9 @@ export default function FeaturedProductsPage({ cartItems, setCartItems, wishlist
 
                     <button 
                       onClick={(e) => addToCart(product, e)}
-                      className="p-2.5 rounded-full bg-slate-100 group-hover:bg-babyPink text-slate-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-md group-hover:shadow-pink-100"
+                      className="p-2.5 rounded-full bg-slate-100 group-hover:bg-babyPink text-slate-655 group-hover:text-white transition-all shadow-sm group-hover:shadow-md group-hover:shadow-pink-100"
                     >
-                      <ShoppingCart className="w-4 h-4" />
+                      <ShoppingCart className="w-4.5 h-4.5" />
                     </button>
                   </div>
                 </div>

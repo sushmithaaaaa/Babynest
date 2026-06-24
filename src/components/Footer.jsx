@@ -69,11 +69,12 @@ export default function Footer() {
               Explore
             </h4>
             <ul className="space-y-2.5 text-xs font-medium">
-              <li><Link to="/Categories" className="hover:text-babyPink transition-colors">Categories</Link></li>
+              <li><Link to="/categories" className="hover:text-babyPink transition-colors">Categories</Link></li>
               <li><Link to="/products" className="hover:text-babyPink transition-colors">Products</Link></li>
-              <li><Link to="/Toys" className="hover:text-babyPink transition-colors">Toys</Link></li>
-              <li><Link to="/shop by age" className="hover:text-babyPink transition-colors">Shop By Age</Link></li>
-              <li><Link to="/Featured products" className="hover:text-babyPink transition-colors">Featured</Link></li>
+              <li><Link to="/toys" className="hover:text-babyPink transition-colors">Toys</Link></li>
+              <li><Link to="/shop-by-age" className="hover:text-babyPink transition-colors">Shop By Age</Link></li>
+              <li><Link to="/featured" className="hover:text-babyPink transition-colors">Featured</Link></li>
+              <li><Link to="/custom-baby-essentials" className="hover:text-babyPink transition-colors">Custom Kits</Link></li>
               <li><Link to="/reviews" className="hover:text-babyPink transition-colors">Reviews</Link></li>
             </ul>
           </div>

@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { mockReviews as initialReviews } from '../data/reviews';
 import { Star, ShieldCheck, PenTool, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function ReviewsPage() {
-  const [reviewsList, setReviewsList] = useState(initialReviews);
+export default function ReviewsPage({ reviews, setReviews }) {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [rating, setRating] = useState(5);
@@ -21,17 +19,18 @@ export default function ReviewsPage() {
     }
 
     const newReview = {
-      id: reviewsList.length + 1,
+      id: Math.max(...reviews.map(r => r.id), 0) + 1,
       name,
       role,
       rating: Number(rating),
       text,
       avatar,
       bgColor: 'bg-gradient-to-tr from-pink-50 to-blue-50',
-      date: 'Just now'
+      date: 'Just now',
+      status: 'Approved' // Auto-approved for customer display
     };
 
-    setReviewsList([newReview, ...reviewsList]);
+    setReviews([newReview, ...reviews]);
     
     // Confetti effect
     confetti({
@@ -59,19 +58,24 @@ export default function ReviewsPage() {
     ));
   };
 
+  // Filter reviews to show only Approved ones on storefront (or all if not moderated yet)
+  const approvedReviews = reviews.filter(r => r.status === undefined || r.status === 'Approved');
+
   // Calculate statistics
-  const totalReviews = reviewsList.length;
-  const avgRating = (reviewsList.reduce((sum, r) => sum + r.rating, 0) / totalReviews).toFixed(1);
+  const totalReviews = approvedReviews.length;
+  const avgRating = totalReviews > 0 
+    ? (approvedReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews).toFixed(1)
+    : '5.0';
   
   // Calculate star distributions
   const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-  reviewsList.forEach(r => {
+  approvedReviews.forEach(r => {
     const star = Math.round(r.rating);
     if (starCounts[star] !== undefined) starCounts[star]++;
   });
 
   return (
-    <div className="py-12 bg-gradient-to-b from-purple-50/15 via-white to-pink-50/15 min-h-screen">
+    <div className="py-12 bg-gradient-to-b from-purple-50/15 via-white to-pink-50/15 min-h-screen selection:bg-pink-100 selection:text-pink-650">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -93,13 +97,13 @@ export default function ReviewsPage() {
           <div className="lg:col-span-4 space-y-8">
             
             {/* Rating Breakdown card */}
-            <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm">
-              <h3 className="font-bold text-lg font-fredoka text-slate-800 mb-4">Ratings Summary</h3>
+            <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm text-left">
+              <h3 className="font-bold text-lg font-fredoka text-slate-805 mb-4">Ratings Summary</h3>
               <div className="flex items-center gap-4 mb-6">
-                <span className="text-5xl font-extrabold text-slate-800 font-fredoka">{avgRating}</span>
+                <span className="text-5xl font-extrabold text-slate-805 font-fredoka">{avgRating}</span>
                 <div>
                   <div className="flex text-yellow-400 mb-1">
-                    {renderStars(Math.round(avgRating))}
+                    {renderStars(Math.round(parseFloat(avgRating)))}
                   </div>
                   <span className="text-xs text-slate-400 font-medium">Based on {totalReviews} parent reviews</span>
                 </div>
@@ -129,7 +133,7 @@ export default function ReviewsPage() {
             </div>
 
             {/* Write a Review Form Card */}
-            <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm relative overflow-hidden">
+            <div className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm relative overflow-hidden text-left">
               {/* Highlight background blobs */}
               <div className="absolute top-0 right-0 w-24 h-24 bg-babyPink/5 rounded-full filter blur-xl"></div>
               
@@ -150,7 +154,7 @@ export default function ReviewsPage() {
               <form onSubmit={handleSubmit} className="space-y-4 text-xs font-medium">
                 {/* Parent Name */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider block mb-1 font-fredoka">Your Name</label>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1 font-fredoka">Your Name</label>
                   <input 
                     type="text" 
                     value={name}
@@ -162,7 +166,7 @@ export default function ReviewsPage() {
 
                 {/* Baby Milestone / Role */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider block mb-1 font-fredoka">Baby Milestone / Age</label>
+                  <label className="text-[10px] font-bold text-slate-505 block mb-1 font-fredoka">Baby Milestone / Age</label>
                   <input 
                     type="text" 
                     value={role}
@@ -174,7 +178,7 @@ export default function ReviewsPage() {
 
                 {/* Star rating buttons */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider block mb-2 font-fredoka">Your Rating</label>
+                  <label className="text-[10px] font-bold text-slate-505 block mb-2 font-fredoka">Your Rating</label>
                   <div className="flex gap-2">
                     {[1, 2, 3, 4, 5].map((num) => (
                       <button
@@ -195,7 +199,7 @@ export default function ReviewsPage() {
 
                 {/* Avatar emojis */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider block mb-2 font-fredoka">Select Avatar Emoji</label>
+                  <label className="text-[10px] font-bold text-slate-505 block mb-2 font-fredoka">Select Avatar Emoji</label>
                   <div className="flex flex-wrap gap-2">
                     {['👩‍🍼', '👨‍🍼', '🧔', '👩', '👨', '👶', '🧸', '🐣'].map((emoji) => (
                       <button
@@ -216,7 +220,7 @@ export default function ReviewsPage() {
 
                 {/* Feedback Text */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider block mb-1 font-fredoka">Your Feedback</label>
+                  <label className="text-[10px] font-bold text-slate-505 block mb-1 font-fredoka">Your Feedback</label>
                   <textarea 
                     rows="4"
                     value={text}
@@ -238,48 +242,55 @@ export default function ReviewsPage() {
           </div>
 
           {/* Right Column: Reviews List Grid */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-6 text-left">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg font-fredoka text-slate-800">Reviews & Diaries ({totalReviews})</h3>
+              <h3 className="font-bold text-lg font-fredoka text-slate-805">Reviews & Diaries ({totalReviews})</h3>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {reviewsList.map((rev) => (
-                <div 
-                  key={rev.id} 
-                  className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:scale-[1.01] transition-all relative overflow-hidden"
-                >
-                  <div>
-                    {/* Header: Avatar, Name, Stars */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm ${rev.bgColor || 'bg-slate-50'}`}>
-                        {rev.avatar}
+            {approvedReviews.length === 0 ? (
+              <div className="bg-white rounded-[32px] p-12 border border-slate-100 shadow-sm text-center">
+                <span className="text-4xl">✍️</span>
+                <p className="text-slate-400 text-xs mt-2">No reviews have been published yet. Be the first to share your experience!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {approvedReviews.map((rev) => (
+                  <div 
+                    key={rev.id} 
+                    className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:scale-[1.01] transition-all relative overflow-hidden"
+                  >
+                    <div>
+                      {/* Header: Avatar, Name, Stars */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm bg-gradient-to-tr from-pink-50 to-blue-50`}>
+                          {rev.avatar}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-xs text-slate-808 font-fredoka">{rev.name}</h4>
+                          <p className="text-[10px] text-slate-400 font-semibold">{rev.role}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-bold text-xs text-slate-800 font-fredoka">{rev.name}</h4>
-                        <p className="text-[10px] text-slate-400 font-semibold">{rev.role}</p>
+
+                      <div className="flex text-yellow-400 mb-3 gap-0.5">
+                        {renderStars(rev.rating)}
                       </div>
+
+                      <blockquote className="text-xs text-slate-600 leading-relaxed font-normal italic mb-6">
+                        "{rev.text}"
+                      </blockquote>
                     </div>
 
-                    <div className="flex text-yellow-400 mb-3 gap-0.5">
-                      {renderStars(rev.rating)}
+                    {/* Footer: Verified check & Date */}
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-50 mt-auto">
+                      <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">
+                        <ShieldCheck className="w-3.5 h-3.5" /> Verified Parent
+                      </span>
+                      <span className="text-[9px] text-slate-400 font-medium">{rev.date}</span>
                     </div>
-
-                    <blockquote className="text-xs text-slate-600 leading-relaxed font-normal italic mb-6">
-                      "{rev.text}"
-                    </blockquote>
                   </div>
-
-                  {/* Footer: Verified check & Date */}
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-50 mt-auto">
-                    <span className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Verified Parent
-                    </span>
-                    <span className="text-[9px] text-slate-400 font-medium">{rev.date}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mockProducts } from '../data/products';
-import { Heart, Star, ShoppingCart, Award, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Heart, Star, ShoppingCart, Award, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const ageMilestones = [
@@ -16,7 +15,7 @@ const ageMilestones = [
       'Hearing sensitivity and responding to soothing sounds',
       'Reflexive gripping and need for swaddled secure touch',
     ],
-    bgColor: 'from-pink-50 to-rose-50 border-pink-100 text-rose-600',
+    bgColor: 'from-pink-50 to-rose-50 border-pink-100 text-rose-605',
     accentColor: 'text-rose-500'
   },
   {
@@ -30,7 +29,7 @@ const ageMilestones = [
       'Putting objects in mouth for oral exploration',
       'Beginning baby-led weaning and chewing gums',
     ],
-    bgColor: 'from-blue-50 to-sky-50 border-blue-100 text-sky-600',
+    bgColor: 'from-blue-50 to-sky-50 border-blue-100 text-sky-605',
     accentColor: 'text-sky-500'
   },
   {
@@ -44,7 +43,7 @@ const ageMilestones = [
       'Improving pincer grasp and object manipulation',
       'Eating solid purees and self-feeding sets',
     ],
-    bgColor: 'from-emerald-50 to-teal-50 border-emerald-105 text-emerald-600',
+    bgColor: 'from-emerald-50 to-teal-50 border-emerald-105 text-emerald-605',
     accentColor: 'text-emerald-500'
   },
   {
@@ -58,34 +57,34 @@ const ageMilestones = [
       'Early vocabulary, alphabet blocks, and spelling',
       'Imitative play, outdoor travel, and strollers',
     ],
-    bgColor: 'from-yellow-50 to-amber-50 border-yellow-100 text-amber-600',
+    bgColor: 'from-yellow-50 to-amber-50 border-yellow-100 text-amber-605',
     accentColor: 'text-amber-500'
   }
 ];
 
 // Helper to filter products by age brackets
-const filterProductsByAge = (ageId, products) => {
+const filterProductsByAge = (ageId, productsList) => {
   if (ageId === 'newborn') {
-    return products.filter(p => p.age.toLowerCase().includes('newborn') || p.age.toLowerCase().includes('0-12') || p.age.toLowerCase().includes('0-24') || p.age.toLowerCase().includes('0-6'));
+    return productsList.filter(p => p.age.toLowerCase().includes('newborn') || p.age.toLowerCase().includes('0-12') || p.age.toLowerCase().includes('0-24') || p.age.toLowerCase().includes('0-6'));
   }
   if (ageId === 'infant') {
-    return products.filter(p => p.age.toLowerCase().includes('0-12') || p.age.toLowerCase().includes('3-') || p.age.toLowerCase().includes('4+') || p.age.toLowerCase().includes('0-6'));
+    return productsList.filter(p => p.age.toLowerCase().includes('0-12') || p.age.toLowerCase().includes('3-') || p.age.toLowerCase().includes('4+') || p.age.toLowerCase().includes('0-6'));
   }
   if (ageId === 'explorer') {
-    return products.filter(p => p.age.toLowerCase().includes('6+') || p.age.toLowerCase().includes('6-36') || p.age.toLowerCase().includes('0-24') || p.age.toLowerCase().includes('0-12'));
+    return productsList.filter(p => p.age.toLowerCase().includes('6+') || p.age.toLowerCase().includes('6-36') || p.age.toLowerCase().includes('0-24') || p.age.toLowerCase().includes('0-12'));
   }
   if (ageId === 'toddler') {
-    return products.filter(p => p.age.toLowerCase().includes('12+') || p.age.toLowerCase().includes('6-36') || p.age.toLowerCase().includes('0-24') || p.age.toLowerCase().includes('3-36'));
+    return productsList.filter(p => p.age.toLowerCase().includes('12+') || p.age.toLowerCase().includes('6-36') || p.age.toLowerCase().includes('0-24') || p.age.toLowerCase().includes('3-36'));
   }
-  return products;
+  return productsList;
 };
 
-export default function ShopByAgePage({ cartItems, setCartItems, wishlist, setWishlist }) {
+export default function ShopByAgePage({ products, cartItems, setCartItems, wishlist, setWishlist }) {
   const [selectedAge, setSelectedAge] = useState('newborn');
   const navigate = useNavigate();
 
   const activeAgeData = ageMilestones.find(a => a.id === selectedAge);
-  const matchedProducts = filterProductsByAge(selectedAge, mockProducts);
+  const matchedProducts = filterProductsByAge(selectedAge, products);
 
   const toggleWishlist = (id, e) => {
     e.stopPropagation();
@@ -114,7 +113,7 @@ export default function ShopByAgePage({ cartItems, setCartItems, wishlist, setWi
   };
 
   return (
-    <div className="py-12 bg-gradient-to-b from-yellow-50/10 via-white to-pink-50/10 min-h-screen">
+    <div className="py-12 bg-gradient-to-b from-yellow-50/10 via-white to-pink-50/10 min-h-screen selection:bg-pink-100 selection:text-pink-650">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -148,7 +147,7 @@ export default function ShopByAgePage({ cartItems, setCartItems, wishlist, setWi
                 <span className="font-fredoka text-sm font-bold text-slate-800 group-hover:text-babyPink-dark transition-colors">
                   {age.name}
                 </span>
-                <span className="text-xs text-slate-400 font-bold mt-1 font-fredoka">
+                <span className="text-xs text-slate-455 font-bold mt-1 font-fredoka">
                   {age.bracket}
                 </span>
               </button>
@@ -163,16 +162,16 @@ export default function ShopByAgePage({ cartItems, setCartItems, wishlist, setWi
               <span className="text-[10px] font-extrabold uppercase tracking-widest bg-white/60 px-3 py-1 rounded-full border border-white/80 font-fredoka">
                 Developmental Guide ({activeAgeData.bracket})
               </span>
-              <h2 className="text-2xl font-bold font-fredoka text-slate-800 mt-4">
+              <h2 className="text-2xl font-bold font-fredoka text-slate-800 mt-4 text-left">
                 {activeAgeData.developmentTitle}
               </h2>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              <p className="text-xs text-slate-500 mt-2 leading-relaxed text-left">
                 During this milestone, baby's brain cells form millions of sensory synapses every second. Choosing organic materials and developmentally-sound objects helps support safe exploration.
               </p>
             </div>
             
             <div className="bg-white/80 backdrop-blur-md rounded-[28px] p-6 border border-white/50 w-full md:w-auto shrink-0 md:max-w-md">
-              <h4 className="text-xs font-bold text-slate-800 font-fredoka mb-3 flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-slate-805 font-fredoka mb-3 flex items-center gap-1.5">
                 <Award className={`w-4.5 h-4.5 ${activeAgeData.accentColor}`} /> Key Milestones:
               </h4>
               <ul className="space-y-2.5 text-xs text-slate-600 font-medium text-left">
@@ -237,6 +236,7 @@ export default function ShopByAgePage({ cartItems, setCartItems, wishlist, setWi
                         <img 
                           src={product.image} 
                           alt={product.name} 
+                          onError={(e) => { e.target.onError = null; e.target.src = "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?w=600&auto=format&fit=crop&q=80"; }}
                           className="w-full h-full object-cover relative z-10 transform group-hover:scale-110 transition-transform duration-500"
                           loading="lazy"
                         />
@@ -252,25 +252,25 @@ export default function ShopByAgePage({ cartItems, setCartItems, wishlist, setWi
                         <Star className="w-3.5 h-3.5 fill-current" />
                       </div>
                       <span className="text-xs font-bold text-slate-700">{product.rating}</span>
-                      <span className="text-[10px] text-slate-400 font-medium">({product.reviews} reviews)</span>
+                      <span className="text-[10px] text-slate-405 font-medium">({product.reviews} reviews)</span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-slate-800 font-fredoka truncate mb-1">
+                    <h3 className="text-sm font-bold text-slate-805 font-fredoka truncate mb-1 text-left">
                       {product.name}
                     </h3>
                     
                     {/* Developmental Tip */}
-                    <div className="bg-pink-50/50 text-[10px] text-babyPink-dark font-bold px-2 py-1 rounded-md mb-3 border border-pink-100/35 font-fredoka">
+                    <div className="bg-pink-50/50 text-[10px] text-babyPink-dark font-bold px-2 py-1 rounded-md mb-3 border border-pink-100/35 font-fredoka text-left">
                       🌿 Perfect for developmental tracking
                     </div>
 
-                    <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed">
+                    <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed text-left">
                       {product.description}
                     </p>
                   </div>
 
                   {/* Action row */}
-                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50">
+                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-55">
                     <div>
                       {product.oldPrice && (
                         <span className="text-xs text-slate-400 line-through mr-1.5 font-medium">
@@ -282,7 +282,7 @@ export default function ShopByAgePage({ cartItems, setCartItems, wishlist, setWi
 
                     <button 
                       onClick={(e) => addToCart(product, e)}
-                      className="p-2.5 rounded-full bg-slate-100 group-hover:bg-babyPink text-slate-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-md group-hover:shadow-pink-100"
+                      className="p-2.5 rounded-full bg-slate-100 group-hover:bg-babyPink text-slate-655 group-hover:text-white transition-all shadow-sm group-hover:shadow-md group-hover:shadow-pink-100"
                     >
                       <ShoppingCart className="w-4 h-4" />
                     </button>

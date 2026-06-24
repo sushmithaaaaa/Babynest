@@ -1,38 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { mockProducts } from '../data/products';
 import { Heart, Eye, ShoppingCart, Star, X, Check, ShieldCheck, Search, SlidersHorizontal } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function ProductsPage({ cartItems, setCartItems, wishlist, setWishlist }) {
+export default function ProductsPage({ products, cartItems, setCartItems, wishlist, setWishlist }) {
   const location = useLocation();
   
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [priceRange, setPriceRange] = useState(250); // Max is stroller at 189.99
+  const [priceRange, setPriceRange] = useState(300); // Max crib is 249.99
   const [sortBy, setSortBy] = useState('popular');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [justAddedId, setJustAddedId] = useState(null);
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
-  // Read location state redirects (e.g. from Home page category clicks)
+  // Sync with location states (e.g., category clicks on Home or modal redirects)
   useEffect(() => {
     if (location.state?.category) {
       setSelectedCategory(location.state.category);
     }
+    if (location.state?.search) {
+      setSearchQuery(location.state.search);
+    }
     if (location.state?.openModalId) {
-      const prod = mockProducts.find(p => p.id === location.state.openModalId);
+      const prod = products.find(p => p.id === location.state.openModalId);
       if (prod) {
         setSelectedProduct(prod);
       }
     }
     // Clear location state to prevent sticky behaviors on reload
     window.history.replaceState({}, document.title);
-  }, [location]);
+  }, [location, products]);
 
   // Filtering Logic
-  const filteredProducts = mockProducts.filter(product => {
+  const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           product.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
@@ -90,8 +92,20 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
     ));
   };
 
+  // Standard category list mapping IDs to Labels
+  const categoriesList = [
+    { id: 'all', label: 'All Products' },
+    { id: 'clothing', label: 'Baby Clothing' },
+    { id: 'toys', label: 'Baby Toys' },
+    { id: 'care', label: 'Baby Care' },
+    { id: 'feeding', label: 'Feeding' },
+    { id: 'diapers', label: 'Diapers' },
+    { id: 'furniture', label: 'Baby Furniture' },
+    { id: 'accessories', label: 'Baby Accessories' }
+  ];
+
   return (
-    <div className="py-12 bg-gradient-to-b from-sky-50/10 via-white to-pink-50/10 min-h-screen">
+    <div className="py-12 bg-gradient-to-b from-sky-50/10 via-white to-pink-50/10 min-h-screen selection:bg-pink-100 selection:text-pink-650">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Banner Section */}
@@ -108,17 +122,17 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
         </div>
 
         {/* Filter Controls Row */}
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-8 items-start text-left">
           
           {/* Sidebar Filters - Desktop */}
           <aside className="hidden lg:block w-64 bg-white rounded-3xl border border-slate-100 p-6 shadow-sm shrink-0 sticky top-24">
-            <h3 className="font-bold text-lg font-fredoka text-slate-855 mb-6 flex items-center gap-2 border-b border-slate-50 pb-3">
+            <h3 className="font-bold text-lg font-fredoka text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-50 pb-3">
               <SlidersHorizontal className="w-5 h-5 text-babyPink-dark" /> Filters
             </h3>
 
             {/* Search Input */}
             <div className="mb-6">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2 font-fredoka">Search Products</label>
+              <label className="text-xs font-bold text-slate-550 uppercase tracking-wider block mb-2 font-fredoka">Search Products</label>
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input 
@@ -126,31 +140,23 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="e.g. Romper, Blocks..."
-                  className="w-full bg-slate-50 border border-slate-100 rounded-full pl-9 pr-4 py-2.5 text-xs text-slate-650 focus:outline-none focus:ring-2 focus:ring-babyPink focus:bg-white transition-all"
+                  className="w-full bg-slate-50 border border-slate-100/70 rounded-full pl-9 pr-4 py-2.5 text-xs text-slate-650 focus:outline-none focus:ring-2 focus:ring-babyPink focus:bg-white transition-all font-semibold"
                 />
               </div>
             </div>
 
             {/* Categories */}
             <div className="mb-6">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-3 font-fredoka">Category</label>
+              <label className="text-xs font-bold text-slate-550 uppercase tracking-wider block mb-3 font-fredoka">Category</label>
               <div className="space-y-1">
-                {[
-                  { id: 'all', label: 'All Products' },
-                  { id: 'clothing', label: 'Clothing' },
-                  { id: 'toys', label: 'Toys' },
-                  { id: 'feeding', label: 'Feeding' },
-                  { id: 'diapering', label: 'Diapering' },
-                  { id: 'nursery', label: 'Nursery' },
-                  { id: 'gear', label: 'Gear & Travel' },
-                ].map((cat) => (
+                {categoriesList.map((cat) => (
                   <button 
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`w-full text-left px-3.5 py-2 rounded-full text-xs font-semibold font-fredoka transition-all ${
                       selectedCategory === cat.id 
                         ? 'bg-babyPink text-white font-bold' 
-                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                        : 'text-slate-500 hover:bg-slate-55 hover:text-slate-800'
                     }`}
                   >
                     {cat.label}
@@ -161,21 +167,21 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
 
             {/* Price Filter */}
             <div className="mb-6">
-              <div className="flex justify-between text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 font-fredoka">
+              <div className="flex justify-between text-xs font-bold text-slate-550 uppercase tracking-wider mb-2 font-fredoka">
                 <span>Max Price</span>
                 <span className="text-babyPink-dark">${priceRange}</span>
               </div>
               <input 
                 type="range" 
                 min="5" 
-                max="250" 
+                max="300" 
                 value={priceRange} 
                 onChange={(e) => setPriceRange(Number(e.target.value))}
                 className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-babyPink"
               />
               <div className="flex justify-between text-[10px] text-slate-400 font-semibold mt-1">
                 <span>$5</span>
-                <span>$250</span>
+                <span>$300</span>
               </div>
             </div>
 
@@ -184,7 +190,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('all');
-                setPriceRange(250);
+                setPriceRange(300);
                 setSortBy('popular');
               }}
               className="w-full py-2.5 border border-slate-200 hover:border-babyPink text-slate-500 hover:text-babyPink-dark transition-all rounded-full text-xs font-bold font-fredoka"
@@ -195,6 +201,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
 
           {/* Main Product Panel */}
           <div className="flex-1 w-full">
+            
             {/* Top Toolbar */}
             <div className="bg-white rounded-3xl border border-slate-100 p-4 mb-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-xs text-slate-500 font-medium">
@@ -205,7 +212,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                 {/* Mobile Filter Button */}
                 <button 
                   onClick={() => setShowFiltersMobile(true)}
-                  className="lg:hidden flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-full text-xs font-bold text-slate-655 hover:bg-slate-50 transition-all font-fredoka"
+                  className="lg:hidden flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-full text-xs font-bold text-slate-655 hover:bg-slate-55 transition-all font-fredoka"
                 >
                   <SlidersHorizontal className="w-4 h-4 text-babyPink-dark" /> Filters
                 </button>
@@ -225,14 +232,14 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
               </div>
             </div>
 
-            {/* Mobile Filter Drawer Drawer */}
+            {/* Mobile Filter Drawer */}
             {showFiltersMobile && (
               <div className="fixed inset-0 z-50 overflow-hidden lg:hidden">
                 <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowFiltersMobile(false)}></div>
                 <div className="absolute inset-y-0 left-0 max-w-full flex">
                   <div className="w-screen max-w-xs bg-white shadow-xl flex flex-col p-6 overflow-y-auto">
                     <div className="flex items-center justify-between border-b border-slate-50 pb-4 mb-6">
-                      <h3 className="font-bold text-lg font-fredoka text-slate-800 flex items-center gap-2">
+                      <h3 className="font-bold text-lg font-fredoka text-slate-805 flex items-center gap-2">
                         <SlidersHorizontal className="w-5 h-5 text-babyPink-dark" /> Filters
                       </h3>
                       <button onClick={() => setShowFiltersMobile(false)} className="p-1 rounded-full hover:bg-slate-100">
@@ -250,7 +257,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="e.g. Romper..."
-                          className="w-full bg-slate-50 border border-slate-100 rounded-full pl-9 pr-4 py-2.5 text-xs text-slate-650 focus:outline-none"
+                          className="w-full bg-slate-50 border border-slate-100 rounded-full pl-9 pr-4 py-2.5 text-xs text-slate-655 focus:outline-none"
                         />
                       </div>
                     </div>
@@ -259,15 +266,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                     <div className="mb-6">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-3 font-fredoka">Category</label>
                       <div className="space-y-1">
-                        {[
-                          { id: 'all', label: 'All Products' },
-                          { id: 'clothing', label: 'Clothing' },
-                          { id: 'toys', label: 'Toys' },
-                          { id: 'feeding', label: 'Feeding' },
-                          { id: 'diapering', label: 'Diapering' },
-                          { id: 'nursery', label: 'Nursery' },
-                          { id: 'gear', label: 'Gear & Travel' },
-                        ].map((cat) => (
+                        {categoriesList.map((cat) => (
                           <button 
                             key={cat.id}
                             onClick={() => {
@@ -295,7 +294,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                       <input 
                         type="range" 
                         min="5" 
-                        max="250" 
+                        max="300" 
                         value={priceRange} 
                         onChange={(e) => setPriceRange(Number(e.target.value))}
                         className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-babyPink"
@@ -307,7 +306,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                       onClick={() => {
                         setSearchQuery('');
                         setSelectedCategory('all');
-                        setPriceRange(250);
+                        setPriceRange(300);
                         setShowFiltersMobile(false);
                       }}
                       className="w-full py-2.5 border border-slate-200 text-slate-500 rounded-full text-xs font-bold font-fredoka"
@@ -323,7 +322,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
             {sortedProducts.length === 0 ? (
               <div className="bg-white rounded-[32px] p-16 text-center border border-slate-100 shadow-sm max-w-md mx-auto">
                 <span className="text-5xl">🧸</span>
-                <h3 className="text-lg font-bold font-fredoka text-slate-700 mt-4 font-fredoka">No products match</h3>
+                <h3 className="text-lg font-bold font-fredoka text-slate-700 mt-4">No products match</h3>
                 <p className="text-xs text-slate-400 mt-1 max-w-[240px] mx-auto">
                   Try adjusting your search criteria, raising the price cap, or clearing active filters.
                 </p>
@@ -331,7 +330,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                   onClick={() => {
                     setSearchQuery('');
                     setSelectedCategory('all');
-                    setPriceRange(250);
+                    setPriceRange(300);
                   }}
                   className="mt-6 px-5 py-2.5 bg-gradient-to-r from-babyPink to-babyPurple text-white font-bold rounded-full text-xs font-fredoka hover:shadow-md hover:scale-105 transition-all"
                 >
@@ -378,6 +377,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                             <img 
                               src={product.image} 
                               alt={product.name} 
+                              onError={(e) => { e.target.onError = null; e.target.src = "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?w=600&auto=format&fit=crop&q=80"; }}
                               className="w-full h-full object-cover z-10 transform group-hover:scale-110 transition-transform duration-505"
                               loading="lazy"
                             />
@@ -399,9 +399,9 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
 
                         {/* Info */}
                         <span className="text-[10px] font-bold font-fredoka text-slate-400 tracking-wider uppercase">
-                          {product.category}
+                          {categoriesList.find(c => c.id === product.category)?.label || product.category}
                         </span>
-                        <h3 className="text-sm font-bold text-slate-800 mt-1 font-fredoka group-hover:text-babyPink-dark transition-colors truncate">
+                        <h3 className="text-sm font-bold text-slate-805 mt-1 font-fredoka group-hover:text-babyPink-dark transition-colors truncate">
                           {product.name}
                         </h3>
 
@@ -457,7 +457,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
               {/* Close Button */}
               <button 
                 onClick={() => setSelectedProduct(null)}
-                className="absolute top-6 right-6 z-10 p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+                className="absolute top-6 right-6 z-10 p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-202 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -468,6 +468,7 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                   <img 
                     src={selectedProduct.image} 
                     alt={selectedProduct.name} 
+                    onError={(e) => { e.target.onError = null; e.target.src = "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?w=600&auto=format&fit=crop&q=80"; }}
                     className="w-full h-full object-cover absolute inset-0 z-10"
                   />
                 ) : (
@@ -483,15 +484,15 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
               <div className="md:w-1/2 p-8 flex flex-col justify-between">
                 <div>
                   <div className="flex gap-2">
-                    <span className="px-2.5 py-1 bg-slate-100 text-[10px] font-bold rounded-full text-slate-500 uppercase font-fredoka">
-                      {selectedProduct.category}
+                    <span className="px-2.5 py-1 bg-slate-100 text-[10px] font-bold rounded-full text-slate-505 uppercase font-fredoka">
+                      {categoriesList.find(c => c.id === selectedProduct.category)?.label || selectedProduct.category}
                     </span>
                     <span className="px-2.5 py-1 bg-pink-50 text-[10px] font-bold rounded-full text-babyPink-dark font-fredoka flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5" /> {selectedProduct.age}
                     </span>
                   </div>
 
-                  <h3 className="text-2xl font-bold font-fredoka text-slate-800 mt-4">
+                  <h3 className="text-2xl font-bold font-fredoka text-slate-800 mt-4 text-left">
                     {selectedProduct.name}
                   </h3>
 
@@ -502,13 +503,13 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-500 mt-4 leading-relaxed">
+                  <p className="text-xs text-slate-500 mt-4 leading-relaxed text-left">
                     {selectedProduct.description}
                   </p>
 
                   {/* Options Swatches */}
                   {selectedProduct.colors && selectedProduct.colors.length > 0 && (
-                    <div className="mt-6">
+                    <div className="mt-6 text-left">
                       <h4 className="text-xs font-bold font-fredoka text-slate-600 mb-2">Available Pastel Colors</h4>
                       <div className="flex gap-2">
                         {selectedProduct.colors.map((color) => (
@@ -525,10 +526,10 @@ export default function ProductsPage({ cartItems, setCartItems, wishlist, setWis
 
                 {/* Price and Cart Addition */}
                 <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 block uppercase">Price</span>
+                  <div className="text-left">
+                    <span className="text-[10px] font-bold text-slate-405 block uppercase">Price</span>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold font-fredoka text-slate-800">${selectedProduct.price.toFixed(2)}</span>
+                      <span className="text-2xl font-bold font-fredoka text-slate-808">${selectedProduct.price.toFixed(2)}</span>
                       {selectedProduct.oldPrice && (
                         <span className="text-sm text-slate-400 line-through">${selectedProduct.oldPrice.toFixed(2)}</span>
                       )}

@@ -2,12 +2,25 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Minus, Plus, Trash2, ArrowRight, Percent, ArrowLeft, ClipboardList } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { supabase } from '../supabaseClient';
 
 export default function CartPage({ cartItems, setCartItems, orders, setOrders }) {
   const [couponCode, setCouponCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponError, setCouponError] = useState(false);
+
+  const [customerForm, setCustomerForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: ''
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const cartSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
@@ -56,7 +69,50 @@ export default function CartPage({ cartItems, setCartItems, orders, setOrders })
     }
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
+    const errors = {};
+    if (!customerForm.fullName.trim()) errors.fullName = 'Full Name is required';
+    if (!customerForm.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(customerForm.email)) {
+      errors.email = 'Email address is invalid';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      const formEl = document.getElementById('checkout-form');
+      if (formEl) {
+        formEl.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+
+    setIsSubmitting(true);
+    let supabaseCustomerId = null;
+    try {
+      const { data, error } = await supabase
+        .from('customers')
+        .upsert({
+          full_name: customerForm.fullName,
+          email: customerForm.email,
+          phone: customerForm.phone,
+          address: customerForm.address,
+          city: customerForm.city,
+          state: customerForm.state,
+          pincode: customerForm.pincode,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'email' })
+        .select();
+
+      if (error) {
+        console.error('Supabase upsert error:', error);
+      } else if (data && data.length > 0) {
+        supabaseCustomerId = data[0].id;
+      }
+    } catch (err) {
+      console.error('Failed to upsert customer:', err);
+    }
+
     // Confetti effect
     confetti({
       particleCount: 150,
@@ -67,8 +123,9 @@ export default function CartPage({ cartItems, setCartItems, orders, setOrders })
 
     const newOrder = {
       id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
-      customerName: 'Eleanor Vance',
-      email: 'eleanor.vance@example.com',
+      customerName: customerForm.fullName,
+      email: customerForm.email,
+      customerId: supabaseCustomerId,
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       items: cartItems.map(item => ({
         id: item.id,
@@ -89,8 +146,19 @@ export default function CartPage({ cartItems, setCartItems, orders, setOrders })
 
     alert(`Order Placed Successfully! 🎉\nYour simulated order ID is ${newOrder.id}.`);
     
-    // Clear cart
+    // Clear cart and form
     setCartItems([]);
+    setCustomerForm({
+      fullName: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      state: '',
+      pincode: ''
+    });
+    setFormErrors({});
+    setIsSubmitting(false);
   };
 
   return (
@@ -207,10 +275,104 @@ export default function CartPage({ cartItems, setCartItems, orders, setOrders })
                 </div>
               </div>
 
+              {/* Shipping Details Form */}
+              <div id="checkout-form" className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm mt-6 text-left">
+                <h3 className="font-bold text-lg font-fredoka text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-4 mb-6">
+                  📦 Shipping & Profile Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Full Name *</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Eleanor Vance" 
+                      value={customerForm.fullName}
+                      onChange={(e) => {
+                        setCustomerForm(prev => ({ ...prev, fullName: e.target.value }));
+                        if (formErrors.fullName) setFormErrors(prev => ({ ...prev, fullName: '' }));
+                      }}
+                      className={`w-full bg-slate-50 border ${formErrors.fullName ? 'border-red-300' : 'border-slate-100'} rounded-full px-4 py-2.5 text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-babyPink focus:bg-white`}
+                    />
+                    {formErrors.fullName && <p className="text-red-500 text-[10px] mt-1 ml-2 font-bold">{formErrors.fullName}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Email Address *</label>
+                    <input 
+                      type="email" 
+                      placeholder="e.g. eleanor.vance@example.com" 
+                      value={customerForm.email}
+                      onChange={(e) => {
+                        setCustomerForm(prev => ({ ...prev, email: e.target.value }));
+                        if (formErrors.email) setFormErrors(prev => ({ ...prev, email: '' }));
+                      }}
+                      className={`w-full bg-slate-50 border ${formErrors.email ? 'border-red-300' : 'border-slate-100'} rounded-full px-4 py-2.5 text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-babyPink focus:bg-white`}
+                    />
+                    {formErrors.email && <p className="text-red-500 text-[10px] mt-1 ml-2 font-bold">{formErrors.email}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Phone Number</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. +1 (555) 019-2834" 
+                      value={customerForm.phone}
+                      onChange={(e) => setCustomerForm(prev => ({ ...prev, phone: e.target.value }))}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-full px-4 py-2.5 text-xs text-slate-705 font-medium focus:outline-none focus:ring-2 focus:ring-babyPink focus:bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Street Address</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. 123 Nursery Lane" 
+                      value={customerForm.address}
+                      onChange={(e) => setCustomerForm(prev => ({ ...prev, address: e.target.value }))}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-full px-4 py-2.5 text-xs text-slate-705 font-medium focus:outline-none focus:ring-2 focus:ring-babyPink focus:bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">City</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. San Francisco" 
+                      value={customerForm.city}
+                      onChange={(e) => setCustomerForm(prev => ({ ...prev, city: e.target.value }))}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-full px-4 py-2.5 text-xs text-slate-705 font-medium focus:outline-none focus:ring-2 focus:ring-babyPink focus:bg-white"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">State</label>
+                      <input 
+                        type="text" 
+                        placeholder="CA" 
+                        value={customerForm.state}
+                        onChange={(e) => setCustomerForm(prev => ({ ...prev, state: e.target.value }))}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-full px-4 py-2.5 text-xs text-slate-750 font-medium focus:outline-none focus:ring-2 focus:ring-babyPink focus:bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pincode</label>
+                      <input 
+                        type="text" 
+                        placeholder="94103" 
+                        value={customerForm.pincode}
+                        onChange={(e) => setCustomerForm(prev => ({ ...prev, pincode: e.target.value }))}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-full px-4 py-2.5 text-xs text-slate-750 font-medium focus:outline-none focus:ring-2 focus:ring-babyPink focus:bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Continue Shopping Link */}
               <Link 
                 to="/products"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-babyPink-dark hover:text-babyPink font-fredoka"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-babyPink-dark hover:text-babyPink font-fredoka mt-4"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Continue Shopping
               </Link>
@@ -267,9 +429,10 @@ export default function CartPage({ cartItems, setCartItems, orders, setOrders })
                 {/* Checkout Trigger */}
                 <button 
                   onClick={handlePlaceOrder}
-                  className="w-full py-4 bg-gradient-to-r from-babyPink via-babyPurple to-babyBlue text-white font-bold rounded-full shadow-lg shadow-pink-100 hover:shadow-xl hover:scale-[1.01] transition-all text-center tracking-wider font-fredoka uppercase text-xs mt-6 flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="w-full py-4 bg-gradient-to-r from-babyPink via-babyPurple to-babyBlue text-white font-bold rounded-full shadow-lg shadow-pink-100 hover:shadow-xl hover:scale-[1.01] transition-all text-center tracking-wider font-fredoka uppercase text-xs mt-6 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Place Simulated Order <ClipboardList className="w-4 h-4" />
+                  {isSubmitting ? 'Processing Order...' : 'Place Simulated Order'} <ClipboardList className="w-4 h-4" />
                 </button>
               </div>
 

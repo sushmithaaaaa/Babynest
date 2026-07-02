@@ -1,5 +1,5 @@
 export const mockProducts = [
-  {
+{
     id: 1,
     name: 'Organic Cotton Romper',
     price: 24.99,
@@ -76,6 +76,7 @@ export const mockProducts = [
     colors: ['#E1BEE7', '#B3E5FC', '#FFF9C4'],
     age: '0-24 Months'
   },
+  
   {
     id: 6,
     name: 'Lightweight Travel Stroller',
@@ -338,4 +339,4 @@ export const mockProducts = [
     colors: ['#424242', '#9E9E9E', '#E0F2F1'],
     age: 'Newborns+'
   }
-];
+]  

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DollarSign, ShoppingCart, MessageSquare, Package, TrendingUp, ShieldAlert, ArrowRight } from 'lucide-react';
+import { supabase } from '../supabaseClient';
 
 export default function AdminDashboard({ products, orders, reviews }) {
   const navigate = useNavigate();
+  const [customerCount, setCustomerCount] = useState(0);
 
   // Statistics calculation
   const totalOrders = orders.length;
@@ -13,9 +15,24 @@ export default function AdminDashboard({ products, orders, reviews }) {
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) 
     : '5.0';
 
-  // Compute unique customers from orders (or mock minimum base)
-  const uniqueEmails = new Set(orders.map(o => o.email));
-  const customerCount = Math.max(12, uniqueEmails.size + 8); // Demo base
+  useEffect(() => {
+    async function fetchCustomerCount() {
+      try {
+        const { count, error } = await supabase
+          .from('customers')
+          .select('*', { count: 'exact', head: true });
+
+        if (error) throw error;
+        setCustomerCount(count || 0);
+      } catch (err) {
+        console.error('Error fetching customer count:', err);
+        // Fallback calculation using unique orders if error
+        const uniqueEmails = new Set(orders.map(o => o.email));
+        setCustomerCount(Math.max(5, uniqueEmails.size));
+      }
+    }
+    fetchCustomerCount();
+  }, [orders]);
 
   // Category sales distribution calculation for SVG Chart
   const categorySales = {

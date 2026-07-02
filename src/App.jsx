@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import { supabase } from './supabaseClient';
 
 // Page Imports
 import HomePage from './pages/HomePage';
@@ -101,6 +102,19 @@ export default function App() {
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Fetch all products from Supabase on mount
+  useEffect(() => {
+    async function fetchProducts() {
+      const { data, error } = await supabase.from('products').select('*');
+      if (error) {
+        console.error('Supabase fetch error:', error);
+      } else {
+        console.log('Supabase products data:', data);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   // Sync state changes with localStorage
   useEffect(() => {

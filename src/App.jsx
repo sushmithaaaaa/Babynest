@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation, Navigate, Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { supabase } from './supabaseClient';
@@ -159,7 +159,7 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <ScrollToTop />
       <Routes>
         
@@ -205,6 +205,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
